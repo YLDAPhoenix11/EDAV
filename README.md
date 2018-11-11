@@ -28,3 +28,6 @@ Additional Resource:
 https://www.cs.ny.gov/ssd/Manuals/SPMM/0800PositClassComp/0840_title_and_salary_plan_elements.htm
 
 https://www.cs.ny.gov/cc/focdef.cfm
+
+(NAICS Codes reference)
+https://www.census.gov/programs-surveys/economic-census/guidance/understanding-naics.html
