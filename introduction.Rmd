@@ -10,7 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction
-The H1B visa is an employment-based, non-immigrant visa for temporary workers. It is important for immigrants who want to work in the USA. Every year, the Employment and Traning Administration in United States Department of Labor will disclose the data of H1B applications. The disclosure data including case_status, jobs, employers, salary and etc. 
+The H1B visa is an employment-based, non-immigrant visa for temporary workers. It is important for immigrants who want to work in the USA. Every year, the Employment and Traning Administration in United States Department of Labor will disclose the data of H1B applications. The disclosure data including case_status, jobs, employers, salary and etc.                  
+The data source: https://www.foreignlaborcert.doleta.gov/pdf/PerformanceData/2018/PERM_Disclosure_Data_FY2018_Q4_EOY.xlsx
 
 As international students, we want to use these data to explore more about H1B applications, especially the factors influence the application status and the salaries of H1B applicants. We want to know is there anything that can influence the certification of H1B and how can we increase the possibility of certification. We also want to know more about the H1B applicants, especially their salaries, which may be helpful for job searching.
 
