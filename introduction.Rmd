@@ -13,9 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 The H1B visa is an employment-based, non-immigrant visa for temporary workers. It is important for immigrants who want to work in the USA. Every year, the Employment and Traning Administration in United States Department of Labor will disclose the data of H1B applications. The disclosure data including case_status, jobs, employers, salary and etc.                  
 The data source: https://www.foreignlaborcert.doleta.gov/pdf/PerformanceData/2018/PERM_Disclosure_Data_FY2018_Q4_EOY.xlsx
 
-As international students, we want to use these data to explore more about H1B applications, especially the factors influence the application status and the salaries of H1B applicants. We want to know is there anything that can influence the certification of H1B and how can we increase the possibility of certification. We also want to know more about the H1B applicants, especially their salaries, which may be helpful for job searching.
+As international students, we want to use these data to explore more about H1B applications.
+The first thing we want to know is the factors influence the application status.H1B is of great importance to the international students. If we want to work in the USA for a longer time, we need to apply for H1B. Is there anything that can influence the certification of H1B? How can we increase the possibility of certification? These are our questions. We want to find the answer through the exploratory analysis of the H1B data. By figuring out the factors influence the H1B case status, we can improve the rate of certification when we apply H1B.
 
-In a word, this project will use the data of H1B applications from 10/1/2017 to 9/30/2018, focusing on the status of applications and the salaries of applicants, trying to uncover the association between these two variables and other variables. 
+The second part we are paying attention to is the salary, industry, occupation and other information of the H1B applicants. Since H1B applicants are all international students, that is, our elders and our seniors. Their experience can throw light on us. Their jobs, their industries, and their salaries can give us advice. Which job and which industry can get more salary? Which job and which industry are more friendly to international students? To achieve our dream, where should we go? These are the questions we want to address. We want to provide a guidance for the international students through data analysis.
+
+In a word, this project will use the data of H1B applications from 10/1/2017 to 9/30/2018, focusing on the status of applications and other job-relevant information of applicants, trying to uncover the distribution and associations of the variables. 
 
 Each team member involved in all parts and contributes equally to this project. Specifically, each member's major contribution is listed below.
 
@@ -28,4 +31,4 @@ Each team member involved in all parts and contributes equally to this project. 
     * Interactive component
 * Chunran Yao (cy2511)
     * Introduction
-    * Main analysis 
+    * Main analysis: H1B part

@@ -197,7 +197,18 @@ ggplot(data, aes(x = data$WAIT_TIME, y =data$CASE_STATUS )) +
   geom_point(color = mycolor, alpha = 0.1) + 
   facet_wrap(~ CASE_STATUS, ncol = 1, scales = "free") +     
   ylab("case status")+
-  xlab("wait time (days)")
+  xlab("wait time (days)")+
+  ggtitle("wait time vs. case status")
 ```
 It is a scatter plot of wait time with different case status. From this plot, only the wait time of certified-withdrawn and withdrawn can exceed 10. It seems weird, but it is actually reasonable. Considering the meaning of wait time, it is the time between case submitted and decision date. The decision means the date on which the last significant event or decision was recorded; And withdrawn is a significant event. Now it is clear: the department will make the decision no more than 10 days, whether is CERTIFIED or DENIED; But the applications can be withdrawn even after 6 years submitting the case.  
+
+
+
+
+
+
+
+
+
+
 
