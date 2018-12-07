@@ -3,8 +3,8 @@ title: "Main Analysis"
 author: "Chunran Yao(cy2511)"
 date: "11/20/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -40,63 +40,35 @@ ggplot(data, aes(x = data$CASE_STATUS, y = data$ANNUAL_WAGE))+
 ```
 
 However, there seem to be outliers in salary. According to this plot, there is an annual wage of 100000000 in the denied group, which is impossible.
-By carefully cleaning the data, we can find more impossible data in the annual wage, and we create a new variable called "entry_mistake" to flag whether the annual wage is right. 
 
+By carefully cleaning the data, we can find more impossible data in the annual wage. To drop the outliers, limiting the salary within $300,000 since more than 99% annual wages are under 300,000.
+```{r}
+newdata <- data[which(data$ANNUAL_WAGE<300000),]
+ggplot(newdata, aes(x = newdata$CASE_STATUS, y = newdata$ANNUAL_WAGE))+
+  geom_violin(fill = mycolor, alpha = 0.5)+
+  geom_boxplot(width = 0.1)+
+  stat_summary(fun.y=mean, geom="point", shape=23, size = 2)+
+  ggtitle("annual wage vs. case status")+
+  xlab("case status")+
+  ylab("annual wage")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Now the plot is much more clear. This is a violin plot displaying the distribution of annual wage by case status and the median as well as quartile. And this plot also show mean of each group with the diamondd. 
+The median and the quartiles of different groups are generally the same, with only small differences. Specifically, the median is 87500 for certified, 80000 for certified-withdrawn, 79789 for denied, and 84000 for withdrawn. Despite that the mean of each group is higher than median, means across the groups show the same pattern with medians. Besides, there are more small value in denied than other groups; It seems that getting a reasonable annual wage is more helpful for H1B application.
+In a word, getting more salary may slightly increase the chance of certification. But it is only slightly. Getting a readonable annual wage may be more helpful.
+
+
+For there outliers, we create a new variable called "entry_mistake" to flag whether the annual wage is correct(reasonable). If it is reasonable, the value of entry mistake is Flase; otherwise, the entry mistake is True.
 ```{r}
 ggplot(data, aes(x = ENTRY_MISTAKE,fill = CASE_STATUS))+
   geom_bar(position = "fill")+
   ggtitle("entry mistake vs.case status")+
-  xlab("case status")+
-  ylab("entry mistake")+
+  xlab("entry mistake")+
+  ylab("fraction")+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_fill_viridis_d()
 ```
-
 Obviously, entry mistake has a great influence on case_status. Most of the applications without the mistakes in annual wage are certified; However, when there are mistakes in annual wage, most of the applications are either withdrawn or denied. It is rare to certify these applications compared to those without mistakes. Therefore, the entry mistakes in applications will highly decrease the chance of certification. If an applicant submits a wrong annual wage, we advise him/her withdraws it him/herself, otherwise, it is probably be denied.
-
-And let's draw a new case_status vs. annual wage plot without an entry mistake.
-```{r}
-newdata <- data[which(data$ENTRY_MISTAKE == FALSE),]
-ggplot(newdata, aes(x = newdata$CASE_STATUS, y = newdata$ANNUAL_WAGE))+
-  geom_boxplot(fill = mycolor, alpha = 0.5)+
-  ggtitle("annual wage vs. case status")+
-  xlab("case status")+
-  ylab("annual wage")+
-  theme(plot.title = element_text(hjust = 0.5))
-```
-After dropping the data with entry mistakes, the plot becomes more clear but it is not enough. There are still some outliers far from others: there are applicants who get more than $7,000,000 a year.
-To better display the distribution of annual wage with different case status, limiting the salary within $300,000 (more than 99% annual wages are under 300,000).
-
-```{r}
-newdata <- data[which(data$ENTRY_MISTAKE == FALSE & data$ANNUAL_WAGE<300000),]
-ggplot(newdata, aes(x = newdata$CASE_STATUS, y = newdata$ANNUAL_WAGE))+
-  geom_boxplot(fill = mycolor, alpha = 0.5)+
-  ggtitle("annual wage vs. case status")+
-  xlab("case status")+
-  ylab("annual wage")+
-  theme(plot.title = element_text(hjust = 0.5))
-```
-Now the plot is much more clear. The median and the quartiles of different groups are generally the same, with only small differences. Specifically, the median is 87500 for certified, 80000 for certified-withdrawn, 79789 for denied, and 84000 for withdrawn.
-Therefore, getting more salary may slightly increase the chance of certification. But it is only slightly.
-
-```
-newdata <- data[which(data$ENTRY_MISTAKE == FALSE),]
-case_wage_mean <- group_by(newdata,newdata$CASE_STATUS) %>% summarise_at(vars(ANNUAL_WAGE),mean)
-annaualWageH1bPlot3 <- ggplot(case_wage_mean, aes(x = case_wage_mean$`newdata$CASE_STATUS`,y = case_wage_mean$ANNUAL_WAGE))+
-  geom_bar(stat = "identity", fill = mycolor)+
-  ggtitle("Annual wage(mean) vs. case status")+
-  xlab("case status")+
-  ylab("average annual wage")+
-  theme(plot.title = element_text(hjust = 0.5))
-case_wage_median <- group_by(newdata,newdata$CASE_STATUS) %>% summarise_at(vars(ANNUAL_WAGE),median)
-annaualWageH1bPlot4 <- ggplot(case_wage_median, aes(x = case_wage_median$`newdata$CASE_STATUS`,y = case_wage_median$ANNUAL_WAGE))+
-  geom_bar(stat = "identity", fill = mycolor)+
-  ggtitle("Annual wage(median) vs. case status")+
-  xlab("case status")+
-  ylab("median of annual wage")+
-  theme(plot.title = element_text(hjust = 0.5))
-grid.arrange(annaualWageH1bPlot3, annaualWageH1bPlot4, ncol = 2, nrow = 1)
-```
 
 ### Does occupation influence case status?
 It is reasonable to connect occupations with case status. Some occupations may be helpful for the H1B applications, others may be an obstruction, such as the military occupations.
@@ -112,10 +84,10 @@ SOCH1bPlot1 <- ggplot(data[!is.na(data$MAJOR_SOC_CODE), ], aes(x=MAJOR_SOC_CODE,
 SOCH1bPlot2 <- ggplot(data[!is.na(data$MAJOR_SOC_CODE), ], aes(x=MAJOR_SOC_CODE,fill=CASE_STATUS)) +
   geom_bar()+
   scale_fill_viridis_d()+
-  ylab("number")+
+  ylab("count")+
   xlab("Major SOC CODE")+
   theme(legend.position = "top",plot.title = element_text(hjust = 0.5))
-SOCH1bPlot <- ggarrange(SOCH1bPlot1, SOCH1bPlot2, common.legend = TRUE)
+SOCH1bPlot <- ggarrange(SOCH1bPlot2, SOCH1bPlot1, common.legend = TRUE)
 annotate_figure(SOCH1bPlot,top = text_grob("Major SOC CODE vs. case status"))
 ```
 
@@ -127,7 +99,7 @@ That is, the occupation of the applications will not influence case status.
 ### Does industry influence case status?
 The association between industry and case status is another reasonable hypothesis. Some hypothesis may have priority while others not. Since NAICS CODE is the Industry code, we use NAICS CODE to represent the industry.
 
-```{r fig.width=8}
+```{r fig.width=9}
 data$MAJOR_NAICS_CODE <- as.factor(data$MAJOR_NAICS_CODE)
 NaicsH1bPlot1 <- ggplot(data, aes(x=MAJOR_NAICS_CODE,fill=CASE_STATUS)) +
   geom_bar(position = "fill")+
@@ -142,7 +114,7 @@ NaicsH1bPlot2 <- ggplot(data, aes(x=MAJOR_NAICS_CODE,fill=CASE_STATUS)) +
   xlab("Major NAICS CODE")+
   theme(legend.position = "top",plot.title = element_text(hjust = 0.5))
 #grid.arrange(NaicsH1bPlot1, NaicsH1bPlot2, ncol = 2, nrow = 1)
-NaicsH1bPlot <- ggarrange(NaicsH1bPlot1, NaicsH1bPlot2, common.legend = TRUE)
+NaicsH1bPlot <- ggarrange(NaicsH1bPlot2, NaicsH1bPlot1, common.legend = TRUE)
 annotate_figure(NaicsH1bPlot,top = text_grob("Major NAICS CODE vs. case status"))
 ```
 
@@ -153,35 +125,36 @@ And more certified-withdrawn in Educational Services is corresponding with the m
 **It is strange.**
 
 ```{r}
-#strange1 <- data[which(data$MAJOR_NAICS_CODE == "61" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
-#strange2 <- data[which(data$MAJOR_SOC_CODE == "19" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
-SOC19 <- data[which(data$MAJOR_SOC_CODE == "19"),]
-SOC19 <- mutate(SOC19, SOC_CODE_4 = str_sub(SOC19$SOC_CODE,4,7))
-SOC19$SOC_CODE_4 <- as.factor(SOC19$SOC_CODE_4)
-
-SOC19Plot1 <- ggplot(SOC19, aes(x = SOC_CODE_4, fill = CASE_STATUS))+
-  geom_bar()+
-  theme(axis.text.x = element_text(angle=90))+
-  scale_fill_viridis_d()
-SOC19Plot2 <- ggplot(SOC19, aes(x = SOC_CODE_4, fill = CASE_STATUS))+
-  geom_bar(position = "fill")+
-  theme(axis.text.x = element_text(angle=90))+
-  scale_fill_viridis_d()
-grid.arrange(SOC19Plot1,SOC19Plot2)
+univ1 <- data[which(data$MAJOR_NAICS_CODE == "61" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
+univ2 <- data[which(data$MAJOR_SOC_CODE == "19" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
+univ3 <- data[which((data$MAJOR_SOC_CODE == "19" |data$MAJOR_NAICS_CODE == "61") & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
 ```
+There are 5833 certified-withdrawn cases in educational services, 3976 certified-withdrawn cases with life, physical, and social science Occupations. The overlay of these two are 2553 cases. There are totally 7256 apllicants either work in educational service or have a life, physical, and social science occupation.  
+
+```{r fig.width=6}
+pattern_univ <- "UNIV"
+univ3 <- mutate(univ3, univ =str_detect(toupper(univ3$EMPLOYER_NAME),pattern_univ))
+univ <- as.data.frame(table(univ3$univ))
+levels(univ$Var1) <- c('No','Yes')
+colnames(univ) <- c('university','count')
+ggplot(univ, aes(x = university , y = count))+
+  geom_bar(stat = "identity",fill = mycolor)+
+  xlab("Does the applicant work in university?")+
+  ggtitle("in the apllicants either work in educational service or have a life, physical, and social science occupation,
+how many of them work in universities")
+```
+
+In the 7256 cases, more than two thirds are working in university.
 
 ```{r}
-NAICS61 <- data[which(data$MAJOR_NAICS_CODE == "61"),]
-NAICS61Plot1 <- ggplot(NAICS61, aes(x =as.factor(NAICS_CODE), fill = CASE_STATUS))+
-  geom_bar()+
-  theme(axis.text.x = element_text(angle=90))+
-  scale_fill_viridis_d()
-NAICS61Plot2 <- ggplot(NAICS61, aes( x =as.factor(NAICS_CODE), fill = CASE_STATUS))+
-  geom_bar(position = "fill")+
-  theme(axis.text.x = element_text(angle=90))+
-  scale_fill_viridis_d()
-grid.arrange(NAICS61Plot1,NAICS61Plot2)
+univ4 <- data[which(data$CASE_STATUS == "CERTIFIED-WITHDRAWN" & str_detect(toupper(data$EMPLOYER_NAME),pattern_univ) == TRUE),]
+ggplot(univ4, aes(x = WAIT_TIME))+
+  geom_histogram(aes(y=..density..),binwidth = 50, fill = mycolor, color = "white")+
+  geom_density()+
+  xlab("wait time")+
+  ggtitle("wait time of the certified-withdrawn applicants working in universities")
 ```
+And this is the distribution of wait time of the certified-withdrawn applicants working in universities. Some of the employer will withdraw the apllicants' certification soon after they get it. But in general, it is uniformaly distributed. So the certification can be withdrawn at nearly any time, from 7 days to 6 years after the certification.
 
 ### Does H1B dependent influence case status?
 H1B-dependent is an important field in this dataset. It is used to describe the applicants' employers. Employers who hire ‘too many’ H1B workers are labeled H1B Dependent Employers.                                  
@@ -191,6 +164,8 @@ Whether or not an employer is H1B-dependent is mainly determined by the size of 
 - 51 or more full-time employees of which 15% or more are H1B workers.
 Intuitively, H1B dependent is associated with the case status: the applicants are more likely to be certified if their employers are H1B dependent.
 ```{r}
+levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="Y"] <- "Yes"
+levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="N"] <- "No"
 dependentH1b <- group_by(data[!is.na(data$H1B_DEPENDENT),],H1B_DEPENDENT, CASE_STATUS) %>% summarise(number = n())
 ggplot(data = dependentH1b, aes(x = H1B_DEPENDENT, y = number, fill = CASE_STATUS))+
   geom_bar(stat = "identity", position = "fill")+
@@ -204,7 +179,7 @@ ggplot(data = dependentH1b, aes(x = H1B_DEPENDENT, y = number, fill = CASE_STATU
 Although the association is not so strong, we cannot say they are irrelevant. The fraction of certified applications is more if the employers are H1B dependent. And if the employer is not H1B dependent, the application is more likely to be denied.
 Therefore, to increase the chance of certification and decrease the chance of denial, maybe it is a good idea to work in an H1B-dependent company.
 
-## Does wait time influence case status?
+### Does wait time influence case status?
 ```{r}
 ggplot(data, aes(x = data$CASE_STATUS, y = data$WAIT_TIME))+
   geom_boxplot(fill = mycolor)+
@@ -215,13 +190,14 @@ ggplot(data, aes(x = data$CASE_STATUS, y = data$WAIT_TIME))+
 ```
 Surprisingly, the wait time with different case status varies a lot. The median of wait time with certified-withdrawn is much more than those with other statuses; Specifically, the median of the wait time in certified, the denied and the withdrawn group is around 0.There is no "large number" in certified and denied, while there is more long wait time in other groups.
 
+
 To display them more clear:
 ```{r}
 ggplot(data, aes(x = data$WAIT_TIME, y =data$CASE_STATUS )) +
-  geom_point(color = mycolor, alpha = 0.5) + 
+  geom_point(color = mycolor, alpha = 0.1) + 
   facet_wrap(~ CASE_STATUS, ncol = 1, scales = "free") +     
   ylab("case status")+
-  xlab("wait time")
+  xlab("wait time (days)")
 ```
 It is a scatter plot of wait time with different case status. From this plot, only the wait time of certified-withdrawn and withdrawn can exceed 10. It seems weird, but it is actually reasonable. Considering the meaning of wait time, it is the time between case submitted and decision date. The decision means the date on which the last significant event or decision was recorded; And withdrawn is a significant event. Now it is clear: the department will make the decision no more than 10 days, whether is CERTIFIED or DENIED; But the applications can be withdrawn even after 6 years submitting the case.  
 
