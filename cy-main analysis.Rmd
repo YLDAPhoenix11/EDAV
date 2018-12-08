@@ -57,7 +57,6 @@ Now the plot is much more clear. This is a violin plot displaying the distributi
 The median and the quartiles of different groups are generally the same, with only small differences. Specifically, the median is 87500 for certified, 80000 for certified-withdrawn, 79789 for denied, and 84000 for withdrawn. Despite that the mean of each group is higher than median, means across the groups show the same pattern with medians. Besides, there are more small value in denied than other groups; It seems that getting a reasonable annual wage is more helpful for H1B application.
 In a word, getting more salary may slightly increase the chance of certification. But it is only slightly. Getting a readonable annual wage may be more helpful.
 
-
 For there outliers, we create a new variable called "entry_mistake" to flag whether the annual wage is correct(reasonable). If it is reasonable, the value of entry mistake is Flase; otherwise, the entry mistake is True.
 ```{r}
 ggplot(data, aes(x = ENTRY_MISTAKE,fill = CASE_STATUS))+
@@ -69,6 +68,53 @@ ggplot(data, aes(x = ENTRY_MISTAKE,fill = CASE_STATUS))+
   scale_fill_viridis_d()
 ```
 Obviously, entry mistake has a great influence on case_status. Most of the applications without the mistakes in annual wage are certified; However, when there are mistakes in annual wage, most of the applications are either withdrawn or denied. It is rare to certify these applications compared to those without mistakes. Therefore, the entry mistakes in applications will highly decrease the chance of certification. If an applicant submits a wrong annual wage, we advise him/her withdraws it him/herself, otherwise, it is probably be denied.
+
+### Does H1B dependent influence case status?
+H1B-dependent is an important field in this dataset. It is used to describe the applicants' employers. Employers who hire ‘too many’ H1B workers are labeled H1B Dependent Employers.                                  
+Whether or not an employer is H1B-dependent is mainly determined by the size of the company:                           
+- 1-25 full-time employees of which at least 8 are H1B workers.
+- 26 to 50 full-time employees of which at least 13 are H1B workers.
+- 51 or more full-time employees of which 15% or more are H1B workers.
+Intuitively, H1B dependent is associated with the case status: the applicants are more likely to be certified if their employers are H1B dependent.
+```{r}
+levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="Y"] <- "Yes"
+levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="N"] <- "No"
+dependentH1b <- group_by(data[!is.na(data$H1B_DEPENDENT),],H1B_DEPENDENT, CASE_STATUS) %>% summarise(number = n())
+ggplot(data = dependentH1b, aes(x = H1B_DEPENDENT, y = number, fill = CASE_STATUS))+
+  geom_bar(stat = "identity", position = "fill")+
+  scale_fill_viridis_d()+
+  ylab("fraction")+
+  xlab("H1B dependent")+
+  ggtitle("H1B dependent vs. case status")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Although the association is not so strong, we cannot say they are irrelevant. The fraction of certified applications is more if the employers are H1B dependent. And if the employer is not H1B dependent, the application is more likely to be denied.
+Therefore, to increase the chance of certification and decrease the chance of denial, maybe it is a good idea to work in an H1B-dependent company.
+
+### Does wait time influence case status?
+Wait time is the days ranging from date the application was submitted to date on which the last significant event or decision was recorded.
+```{r}
+ggplot(data, aes(x = data$CASE_STATUS, y = data$WAIT_TIME))+
+  geom_boxplot(fill = mycolor)+
+  ggtitle("wait time vs. case status")+
+  xlab("case status")+
+  ylab("wait time")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Surprisingly, the wait time with different case status varies a lot. The median of wait time with certified-withdrawn is much more than those with other statuses; Specifically, the median of the wait time in certified, the denied and the withdrawn group is around 0.There is no "large number" in certified and denied, while there is more long wait time in other groups.
+
+
+To display them more clear:
+```{r}
+ggplot(data, aes(x = data$WAIT_TIME, y =data$CASE_STATUS )) +
+  geom_point(color = mycolor, alpha = 0.1) + 
+  facet_wrap(~ CASE_STATUS, ncol = 1, scales = "free") +     
+  ylab("case status")+
+  xlab("wait time (days)")+
+  ggtitle("wait time vs. case status")
+```
+It is a scatter plot of wait time with different case status. From this plot, only the wait time of certified-withdrawn and withdrawn can exceed 10. It seems weird, but it is actually reasonable. Considering the meaning of wait time, it is the time between case submitted and decision date. The decision means the date on which the last significant event or decision was recorded; And withdrawn is a significant event. Now it is clear: the department will make the decision no more than 10 days, whether is CERTIFIED or DENIED; But the applications can be withdrawn even after 6 years submitting the case.  
 
 ### Does occupation influence case status?
 It is reasonable to connect occupations with case status. Some occupations may be helpful for the H1B applications, others may be an obstruction, such as the military occupations.
@@ -121,15 +167,13 @@ annotate_figure(NaicsH1bPlot,top = text_grob("Major NAICS CODE vs. case status")
 NAICS CODE shares the same pattern with SOC CODE: there is one code outweigh others. In SOC CODE, 15 (Computer and Mathematical Occupations) outweighs others; in NAICS CODE, 54 (Professional, Scientific, and Technical Services) outweighs other.
 Combining the total number and the fraction of NAICS CODE with different case status, applications with NAICS code as 45 (Retail Trade) are more likely to be certified and the certification of applicants with 61 (Educational Services) tend to be withdrawn. In general, NAICS CODE doesn't influence case status greatly. That is, the industry will not influence the case status greatly.
 
-And more certified-withdrawn in Educational Services is corresponding with the more certified-withdrawn in Life, Physical, and Social Science Occupations.                          
-**It is strange.**
-
+More certified-withdrawn in Educational Services seems to be associated with the more certified-withdrawn in Life, Physical, and Social Science Occupations.                          
 ```{r}
 univ1 <- data[which(data$MAJOR_NAICS_CODE == "61" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
 univ2 <- data[which(data$MAJOR_SOC_CODE == "19" & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
 univ3 <- data[which((data$MAJOR_SOC_CODE == "19" |data$MAJOR_NAICS_CODE == "61") & data$CASE_STATUS == "CERTIFIED-WITHDRAWN"),]
 ```
-There are 5833 certified-withdrawn cases in educational services, 3976 certified-withdrawn cases with life, physical, and social science Occupations. The overlay of these two are 2553 cases. There are totally 7256 apllicants either work in educational service or have a life, physical, and social science occupation.  
+Actually, there are 5833 certified-withdrawn cases in educational services, 3976 certified-withdrawn cases with life, physical, and social science Occupations. The overlay of these two are 2553 cases. There are totally 7256 apllicants either work in educational service or have a life, physical, and social science occupation.  
 
 ```{r fig.width=6}
 pattern_univ <- "UNIV"
@@ -140,11 +184,10 @@ colnames(univ) <- c('university','count')
 ggplot(univ, aes(x = university , y = count))+
   geom_bar(stat = "identity",fill = mycolor)+
   xlab("Does the applicant work in university?")+
-  ggtitle("in the apllicants either work in educational service or have a life, physical, and social science occupation,
-how many of them work in universities")
+  ggtitle("Among the applicants either work in educational service or have a life, physical, and social science occupation,
+the number of people work in universities")
 ```
-
-In the 7256 cases, more than two thirds are working in university.
+In the 7256 cases, more than two thirds are working in universities. They are postdocs, associates, researchers, and professors working in universities. Their H1B are more likely to be withdrawn. Since certified-withdrawn is a sign that employee leaves the company, the high certified-withdrawn may indicate a high turnover.
 
 ```{r}
 univ4 <- data[which(data$CASE_STATUS == "CERTIFIED-WITHDRAWN" & str_detect(toupper(data$EMPLOYER_NAME),pattern_univ) == TRUE),]
@@ -154,61 +197,4 @@ ggplot(univ4, aes(x = WAIT_TIME))+
   xlab("wait time")+
   ggtitle("wait time of the certified-withdrawn applicants working in universities")
 ```
-And this is the distribution of wait time of the certified-withdrawn applicants working in universities. Some of the employer will withdraw the apllicants' certification soon after they get it. But in general, it is uniformaly distributed. So the certification can be withdrawn at nearly any time, from 7 days to 6 years after the certification.
-
-### Does H1B dependent influence case status?
-H1B-dependent is an important field in this dataset. It is used to describe the applicants' employers. Employers who hire ‘too many’ H1B workers are labeled H1B Dependent Employers.                                  
-Whether or not an employer is H1B-dependent is mainly determined by the size of the company:                           
-- 1-25 full-time employees of which at least 8 are H1B workers.
-- 26 to 50 full-time employees of which at least 13 are H1B workers.
-- 51 or more full-time employees of which 15% or more are H1B workers.
-Intuitively, H1B dependent is associated with the case status: the applicants are more likely to be certified if their employers are H1B dependent.
-```{r}
-levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="Y"] <- "Yes"
-levels(data$H1B_DEPENDENT)[levels(data$H1B_DEPENDENT)=="N"] <- "No"
-dependentH1b <- group_by(data[!is.na(data$H1B_DEPENDENT),],H1B_DEPENDENT, CASE_STATUS) %>% summarise(number = n())
-ggplot(data = dependentH1b, aes(x = H1B_DEPENDENT, y = number, fill = CASE_STATUS))+
-  geom_bar(stat = "identity", position = "fill")+
-  scale_fill_viridis_d()+
-  ylab("fraction")+
-  xlab("H1B dependent")+
-  ggtitle("H1B dependent vs. case status")+
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-Although the association is not so strong, we cannot say they are irrelevant. The fraction of certified applications is more if the employers are H1B dependent. And if the employer is not H1B dependent, the application is more likely to be denied.
-Therefore, to increase the chance of certification and decrease the chance of denial, maybe it is a good idea to work in an H1B-dependent company.
-
-### Does wait time influence case status?
-```{r}
-ggplot(data, aes(x = data$CASE_STATUS, y = data$WAIT_TIME))+
-  geom_boxplot(fill = mycolor)+
-  ggtitle("wait time vs. case status")+
-  xlab("case status")+
-  ylab("wait time")+
-  theme(plot.title = element_text(hjust = 0.5))
-```
-Surprisingly, the wait time with different case status varies a lot. The median of wait time with certified-withdrawn is much more than those with other statuses; Specifically, the median of the wait time in certified, the denied and the withdrawn group is around 0.There is no "large number" in certified and denied, while there is more long wait time in other groups.
-
-
-To display them more clear:
-```{r}
-ggplot(data, aes(x = data$WAIT_TIME, y =data$CASE_STATUS )) +
-  geom_point(color = mycolor, alpha = 0.1) + 
-  facet_wrap(~ CASE_STATUS, ncol = 1, scales = "free") +     
-  ylab("case status")+
-  xlab("wait time (days)")+
-  ggtitle("wait time vs. case status")
-```
-It is a scatter plot of wait time with different case status. From this plot, only the wait time of certified-withdrawn and withdrawn can exceed 10. It seems weird, but it is actually reasonable. Considering the meaning of wait time, it is the time between case submitted and decision date. The decision means the date on which the last significant event or decision was recorded; And withdrawn is a significant event. Now it is clear: the department will make the decision no more than 10 days, whether is CERTIFIED or DENIED; But the applications can be withdrawn even after 6 years submitting the case.  
-
-
-
-
-
-
-
-
-
-
-
+And this is the distribution of wait time of the certified-withdrawn applicants working in universities. Some of the employer will withdraw the apllicants' certification soon after they get it. But in general, it is uniformaly distributed, which means the time of the employees working in the universities are generally uniformly distributed. Some of them will work there for several months, others work for several years. Few of them work there for more than 4 years.
