@@ -55,8 +55,9 @@ ggplot(newdata, aes(x = newdata$CASE_STATUS, y = newdata$ANNUAL_WAGE))+
 ```
 Now the plot is much more clear. This is a violin plot displaying the distribution of annual wage by case status and the median as well as quartile. And this plot also show mean of each group with the diamondd. 
 The median and the quartiles of different groups are generally the same, with only small differences. Specifically, the median is 87500 for certified, 80000 for certified-withdrawn, 79789 for denied, and 84000 for withdrawn. Despite that the mean of each group is higher than median, means across the groups show the same pattern with medians. Besides, there are more small value in denied than other groups; It seems that getting a reasonable annual wage is more helpful for H1B application.
-In a word, getting more salary may slightly increase the chance of certification. But it is only slightly. Getting a readonable annual wage may be more helpful.
+In a word, getting more salary may slightly increase the chance of certification. But it is only slightly. 
 
+### mistakes in annual wage
 For there outliers, we create a new variable called "entry_mistake" to flag whether the annual wage is correct(reasonable). If it is reasonable, the value of entry mistake is Flase; otherwise, the entry mistake is True.
 ```{r}
 ggplot(data, aes(x = ENTRY_MISTAKE,fill = CASE_STATUS))+
@@ -68,6 +69,22 @@ ggplot(data, aes(x = ENTRY_MISTAKE,fill = CASE_STATUS))+
   scale_fill_viridis_d()
 ```
 Obviously, entry mistake has a great influence on case_status. Most of the applications without the mistakes in annual wage are certified; However, when there are mistakes in annual wage, most of the applications are either withdrawn or denied. It is rare to certify these applications compared to those without mistakes. Therefore, the entry mistakes in applications will highly decrease the chance of certification. If an applicant submits a wrong annual wage, we advise him/her withdraws it him/herself, otherwise, it is probably be denied.
+
+### annual wage and prevailing wage
+When we are looking at data, we found an interesting variable: "prevailing wage".It is the prevailing wage for the job being requested for temporary labor condition.
+More interesting, we found the relationship between this variable and annual wage is highly associated with case status.
+```{r}
+prewage <- read_csv("H1B_28variable.csv")
+prewage <- prewage[!is.na(prewage$Lower_Than_PW),]
+ggplot(prewage, aes(x = prewage$Lower_Than_PW,fill = CASE_STATUS))+
+  geom_bar(position = "fill")+
+  ggtitle("prevailing wage vs.case status")+
+  xlab("Is annual wage lower than prevailing wgae")+
+  ylab("fraction")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_viridis_d()
+```
+As we can see, if an employee's annual wage is lower than prevailing wage, he/she will definitely not be certified with H1B visa. It looks like a salary more than prevailing wage is the prerequisite for H1B certification.
 
 ### Does H1B dependent influence case status?
 H1B-dependent is an important field in this dataset. It is used to describe the applicants' employers. Employers who hire ‘too many’ H1B workers are labeled H1B Dependent Employers.                                  
