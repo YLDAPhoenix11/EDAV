@@ -1,0 +1,50 @@
+---
+title: "final clean data dictionary"
+author: "Alpha Lu(yl3963)"
+date: "12/09/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+              
+     
+                                 
+FIELD NAME                            |             DESCRIPTION
+-----------------------------------|     -----------------------
+CASE_NUMBER     |Unique identifier assigned to each application     submitted for processing to the Chicago National                  Processing Center.
+CASE_STATUS     |Status associated with the last significant event  or decision. Valid values include “Certified,”    “Certified-Withdrawn,” Denied,” and “Withdrawn”.
+ANNUAL_WAGE | Standardized annual wage
+WAGE_RATE_OF_PAY_FROM |Employer’s proposed wage rate.
+WAGE_UNIT_OF_PAY  | Unit of pay. Valid values include “Hour", "Week", "Bi-Weekly", "Month", or "Year".
+CASE_SUBMITTED  |Date and time the application was submitted.
+DECISION_DATE   |Date on which the last significant event or        decision was recorded by the Chicago National        Processing Center.
+EMPLOYER_NAME   |Name of employer submitting labor condition application.
+EMPLOYER_BUSINESS_DBA |Trade Name or dba name of employer submitting labor condition application, if applicable.
+EMPLOYER_CITY   |
+EMPLOYER_STATE  |
+EMPLOYER_COUNTRY|
+EMPLOYER_POSTAL_CODE|Contact information of the Employer requesting temporary labor certification.
+JOB_TITLE |Title of the job.
+SOC_CODE|Occupational code associated with the job being requested for temporary labor condition, as                   classified by the Standard Occupational Classification (SOC) System.
+SOC_NAME| Occupational name associated with the SOC_CODE.
+NAICS_CODE | Industry code associated with the employer requesting permanent labor condition, as classified by the North American Industrial Classification System (NAICS).
+MAJOR_NAICS_CODE | Major NAICS sector code corresponds to MAJOR_INDUSTRY 
+MAJOR_INDUSTRY | A specific industry each applicant’s occupation belongs to 
+MAJOR_SOC_CODE | Major SOC code corresponds to variable corresponds to OCCUPATION_CLASSIFICATION
+OCCUPATION_CLASSIFICATION |Detailed occupations corresponding to the SOC code
+PREVAILING_WAGE | Prevailing Wage for the job being requested for temporary labor condition.
+PW_UNIT_OF_PAY | Unit of Pay. Valid values include “Daily (DAI),” “Hourly (HR),” “Bi-weekly (BI),” “Weekly (WK),” “Monthly (MTH),” and “Yearly (YR)”.
+H-1B_DEPENDENT | Y = Employer is H-1B Dependent; N = Employer is not H-1B Dependent.
+WAIT_TIME | Days you have to wait before you get the case result.
+ENTRY_MISTAKE | Entry mistake equals TRUE if there is an entry mistake, FALSE otherwise
+Lower_Than_PW | Annual wage lower  than prevailing wage, TRUE if the applicant is  paid less than prevailing wage, FALSE otherwise.
+
+
+
+
+
+
