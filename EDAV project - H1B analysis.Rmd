@@ -1,6 +1,6 @@
 ---
 title: "EDAV Final Project: Analysis on H1B Data and Guidance for International Students"
-date: "12/09/2018"
+date: "12/10/2018"
 output:
   pdf_document: default
   html_document: default
@@ -39,7 +39,7 @@ Each team member involved in all parts and contributes equally to this project. 
 https://www.foreignlaborcert.doleta.gov/performancedata.cfm (United States Department of Labor)
 
 ###Data dictionary
-:https://github.com/slayAlphalu/EDAV/blob/master/data%20discription.pdf
+https://github.com/slayAlphalu/EDAV/blob/master/2%20description%20of%20data/data%20description.pdf
 
 ###Data collection: 
 The original dataset we used for our final project comes from the United States Department of Labor Employment and Training Administration official website. 
@@ -55,7 +55,7 @@ Reporting Period: October 1, 2017, through September 30, 2018
  
 However, the original dataset is too tedious (52 unique variables and 54564360 observations in total) and prevents us from focusing on important details. To simplify the dataset, we omit some variables that are less important such as original certificate date. 
 
-After data cleaning, our clean version of data consists of 25 unique variables and 6 of them are new variables.
+After data cleaning, our clean version of data consists of 26 unique variables and 6 of them are new variables.
 
 \newpage
 ###Data Cleaning Process:
@@ -70,7 +70,7 @@ Data cleaning code link: https://github.com/slayAlphalu/EDAV/tree/master/data_cl
 - wait time(WAIT_TIME): decision time = case decision time - case submitted time (in days)
 occupation classification(OCCUPATION_CLASSIFICATION): we classify detailed occupations into 22 major groups using their respective SOC code. Standard Occupational Classification (SOC) system is a federal statistical standard used by federal agencies to classify workers into occupational categories for the purpose of collecting, calculating, or disseminating data.
 
- (reference:https://www.bls.gov/soc/2010/2010_major_groups.htm#45-0000)
+ (reference: https://www.bls.gov/soc/2010/2010_major_groups.htm#45-0000)
 
 - major industry(MAJOR_INDUSTRY): since each applicant’s occupation belongs to a specific industry, we classify cases into 20 major industries using their respective NAICS code. The North American Industry Classification System (NAICS) is the standard used by Federal statistical agencies in classifying business establishments for the purpose of collecting, analyzing, and publishing statistical data related to the U.S. business economy.
 
@@ -168,7 +168,7 @@ Given 26 variables:
 
 **Categorical:** CASE_STATUS, WAGE_UNIT_OF_PAY, MAJOR_SOC_CODE, MAJOR_NAICS_CODE, MAJOR_INDUSTRY, EMPLOYER_CITY, EMPLOYER_STATE, EMPLOYER_POSTAL_CODE, EMPLOYER_COUNTRY, SOC_CODE, SOC_NAME, NAICS_CODE, PW_UNIT_OF_PAY, ENTRY_MISTAKE, H1B_DEPENDENT, OCCUPATIONAL_CLASSIFICATION
 
-**Discrete:**WAIT_TIME
+**Discrete:**WAIT_TIME                                       
 **Continuous:**  ANNUAL_WAGE, WAGE_RATE_OF_PAY_FROM, PREVAILING_WAGE
 
 **Date:** CASE_SUBMITTED, DECISION_DATE
@@ -969,7 +969,7 @@ graph1 <- ggplot(certiwithind,aes(x = reorder(MAJOR_INDUSTRY, fraction), y= frac
   ggtitle("percentage of certified-withdrawn 
    in different industries")+
   theme(plot.title = element_text(hjust = 0.5, size = 14))+
-  theme(axis.text.y = element_text(size=9))
+  theme(axis.text.y = element_text(size=8))
 ```
 
 ```{r echo=FALSE,fig.height=6}
@@ -988,7 +988,7 @@ graph2<- ggplot(certiwithoccu,aes(x = reorder(OCCUPATIONAL_CLASSIFICATION, fract
   ggtitle("percentage of certified-withdrawn 
   in different occupations")+
   theme(plot.title = element_text(hjust = 0.5, size = 14))+
-  theme(axis.text.y = element_text(size=9))
+  theme(axis.text.y = element_text(size=8))
 
 ggarrange(graph1, graph2, nrow=2, ncol = 1)
 ```
@@ -1087,7 +1087,7 @@ Data we use for Interactive Visualization are four key variables we are interest
 They are state average salary, state median salary, total number of H1B certified cases per state, total number of Computer Sciences related jobs per state. We group these variables by state to make up four succinct datasets.
 Data we cleaned for this part can be viewed through this link:
 
-https://github.com/slayAlphalu/EDAV/blob/master/subset%20data%20for%20interactive.zip
+https://github.com/slayAlphalu/EDAV/blob/master/6%20Interactive%20component/subset%20data%20for%20interactive.zip
 
 Graph type we use is the geo heatmap, where the darker zones indicate a higher value according to different issues each graph explores. For example, in mean salary map layer, the darker the graph is, the higher the mean salary of that corresponding state it is.
  
@@ -1119,7 +1119,7 @@ The process is same for all of our interactive graphs:
  
 Code link: 
 
-https://github.com/slayAlphalu/EDAV/blob/master/style%20code.zip
+https://github.com/slayAlphalu/EDAV/blob/master/6%20Interactive%20component/style%20code.zip
 
  
 ###6.5 Clarity of presentation, including instructions
