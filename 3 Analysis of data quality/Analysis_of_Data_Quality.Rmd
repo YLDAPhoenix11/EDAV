@@ -1,0 +1,170 @@
+---
+title: "3 Analysis of Data Quality"
+output: pdf_document
+fontsize: 16pt
+geometry: margin=1in
+---
+
+
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T}
+library(ggplot2)
+library(skimr)
+
+#load data
+H1B <- read.csv('H1B_26variable.csv')
+
+#data dimension
+dim(H1B)
+```
+
+## Dataset Summary
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T}
+#data summary
+summary(H1B)
+```
+
+
+## Analyze Missing Pattern
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T, fig.height=5}
+#check missing data pattern
+library(extracat)
+visna(H1B)
+```
+
+**Missing Data Pattern:**
+
+By looking at missing data pattern, we tend to conclude that the quality of this dataset is good. Most variables either have no missing values or have smaller than 0.01% missing value. Variable "H1B_DEPENDENT" has most missing values, with only 2% missing value proportion. Thus, our visualization and analysis won't eroded by missing values.
+
+## Analyze Variables
+
+Given 26 variables:
+
+**Categorical:** CASE_STATUS, WAGE_UNIT_OF_PAY, MAJOR_SOC_CODE, MAJOR_NAICS_CODE, MAJOR_INDUSTRY, EMPLOYER_CITY, EMPLOYER_STATE, EMPLOYER_POSTAL_CODE, EMPLOYER_COUNTRY, SOC_CODE, SOC_NAME, NAICS_CODE, PW_UNIT_OF_PAY, ENTRY_MISTAKE, H1B_DEPENDENT, OCCUPATIONAL_CLASSIFICATION
+
+**Discrete:**WAIT_TIME
+
+**Continuous:**  ANNUAL_WAGE, WAGE_RATE_OF_PAY_FROM, PREVAILING_WAGE
+
+**Date:** CASE_SUBMITTED, DECISION_DATE
+
+**Textual Data:** CASE_NUMBER, JOB_TITLE, EMPLOYER_NAME
+
+**Analysis of Key Continuous Variables:**
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T}
+library(ggplot2)
+library(ggpubr)
+library(tidyverse)
+
+#Variable "annual wage"
+hist1 <- ggplot(data=H1B, aes(H1B$ANNUAL_WAGE)) + geom_histogram(fill="#404788FF") + 
+  ggtitle("Annual Wage: with outliers") + xlab("Annual Wage($)") + 
+  theme(plot.title = element_text(size=12))
+
+#Drop outliers
+upper <- summary(H1B$ANNUAL_WAGE)[5]+
+  (summary(H1B$ANNUAL_WAGE)[5]-summary(H1B$ANNUAL_WAGE)[2])*1.5
+H1B_clean <- H1B %>% filter(H1B$ANNUAL_WAGE<=upper & H1B$ANNUAL_WAGE>0)
+
+hist2<- ggplot(data=H1B_clean, aes(ANNUAL_WAGE)) + geom_histogram(fill="#404788FF") + 
+  ggtitle("Annual Wage: no outliers") + xlab("Annual Wage($)") + 
+  theme(plot.title = element_text(size=12))
+```
+
+**Analysis of Key Discrete Variables:**
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T}
+#Variable "wait time"
+H1B_waittime <- H1B %>% group_by(WAIT_TIME) %>% summarize(count=n())
+hist3<-ggplot(data=H1B_waittime, aes(x=WAIT_TIME, y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF",width = 20) + ggtitle("Wait Time: with outliers") + 
+  xlab("")+ theme(plot.title = element_text(size=12))
+
+#Drop outliers
+H1B_clean_waittime <- H1B %>% filter(H1B$WAIT_TIME<=20 & H1B$WAIT_TIME>0)
+
+H1B_waittime2 <- H1B_clean_waittime %>% group_by(WAIT_TIME) %>% summarize(count=n())
+hist4<-ggplot(data=H1B_waittime2, aes(x=WAIT_TIME, y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Wait Time: no outliers") + xlab("")+ 
+  theme(plot.title = element_text(size=12))
+
+ggarrange(hist1,hist2, nrow=1, ncol = 2)
+ggarrange(hist3,hist4, nrow=1, ncol = 2)
+```
+
+**Analysis of Key Categorical Variables:**
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T, fig.height=20}
+H1B_status <- H1B %>% group_by(CASE_STATUS) %>% summarize(count=n())
+bar1 <- ggplot(data=H1B_status, aes(reorder(x=CASE_STATUS,count), y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Case Status") + xlab("")+ 
+  theme(plot.title = element_text(size=12))+coord_flip() 
+
+H1B_dependent <- H1B %>% group_by(H1B_DEPENDENT) %>% summarize(count=n())
+bar2 <-ggplot(data=H1B_dependent, aes(reorder(x=H1B_DEPENDENT, count), y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Have H1B Dependent or Not") + xlab("")+ 
+  theme(plot.title = element_text(size=12))+coord_flip()
+
+H1B_unitpay <- H1B %>% group_by(WAGE_UNIT_OF_PAY) %>% summarize(count=n())
+bar3 <- ggplot(data=H1B_unitpay, aes(reorder(x=WAGE_UNIT_OF_PAY, count), y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Unit of Pay") + xlab("")+ 
+  theme(plot.title = element_text(size=12))+coord_flip()
+
+H1B_country <- H1B %>% group_by(EMPLOYER_COUNTRY) %>% summarize(count=n()) 
+bar4 <- ggplot(data=H1B_country, aes(reorder(x=EMPLOYER_COUNTRY, count), y=count)) +
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Number of H1B Cases by Employer Country")  + 
+  coord_flip() + xlab(" ")
+
+H1B_industry <- H1B %>% group_by(MAJOR_INDUSTRY) %>% summarize(count=n())
+bar5 <-ggplot(data=H1B_industry, aes(reorder(x=MAJOR_INDUSTRY, count), y=count)) + 
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Major Industry")  + 
+  coord_flip() + xlab(" ")
+
+H1B_occupation <- H1B %>% group_by(OCCUPATIONAL_CLASSIFICATION) %>% summarize(count=n())
+bar6 <-ggplot(data=H1B_occupation, aes(reorder(x=OCCUPATIONAL_CLASSIFICATION, count), y=count)) +
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Occupational Classification")  + 
+  coord_flip() + xlab(" ")
+
+H1B_state <- H1B %>% group_by(EMPLOYER_STATE) %>% summarize(count=n()) 
+bar7 <-ggplot(data=H1B_state, aes(reorder(x=EMPLOYER_STATE, count), y=count)) +
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Number of H1B Cases by Employer State")  + 
+  coord_flip() + xlab(" ")
+
+H1B2 <- read.csv("H1B_28variable.csv")
+H1B_lower <- H1B2 %>% group_by(Lower_Than_PW) %>% summarize(count=n())
+bar8 <- ggplot(data=H1B_lower, aes(reorder(x=Lower_Than_PW, count), y=count)) +
+  geom_bar(stat="identity", fill="#404788FF") + ggtitle("Number of H1B Cases by Lower_Than_PW")  + 
+  coord_flip() + xlab(" ")
+
+```
+
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T,fig.align="center",fig.height=10}
+ggarrange(bar1, bar2, bar3, bar4, bar8, ncol = 1, nrow = 5)
+```
+
+
+```{r,echo=T,eval=TRUE,warning=FALSE,cache=T,fig.align="center", fig.height=5}
+bar5
+bar6
+bar7
+```
+
+
+
+
+**Key Variables of Interest: **
+
+- Variable "ANNUAL_WAGE" is influenced by large value outliers and it follows normal distribution after dropping outliers. 
+
+- Variable "WAIT_TIME" is also influenced by large value outliers. After dropping variables, we observe that most of wait time are of H1B application are around 6 days. 
+
+- Variable "CASE_STATUS": most cases are certified, which is siginificantly greater than other status.The second most case statu is certified-withdrawn.
+
+- Variable "H1B_DEPENDENT": the number of applicants who don't have H1B dependents are approximately twice as those who have H1B dependents
+
+- Variable "WAGE_UNIT_OF_PAY": most of wages are in the unit pay of year, with only a few in hour.
+
+- Variable "EMPLOYER_COUNTRY": most of employer country is the United States.
+
+- Variable "MAJOR_INDUSTRY": Professional, Scientific, and Technical Services Industry has most H1B cases, much more than other industries. Manufacturing is in the second position, and Finance and Insurance is in the thrid position.
+
+- Variable "OCCUPATIONAL_CLASSIFICATION": Computer and Mathematical occupation has most H1B cases, far more than other occupational calssification.
+
+- Variable "EMPLOYER_STATE": the top 3 U.S. states with most H1B cases are California, New Jersey, Texas. 
