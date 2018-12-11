@@ -9,6 +9,8 @@ output:
 ```{r,echo=T,eval=FALSE,warning=FALSE,cache=T}
 library(ggplot2)
 library(tidyverse)
+#data <- read.csv(./data.csv)
+#the raw data is too large and if you want to load the data,uncomment the above code and download the original dataset H-1B_FY2018.xlsx in Readme.md 
 
 data$SOC_CODE <- as.character(data$SOC_CODE)
 data$SOC_CODE[which((data$SOC_CODE == "") & (data$JOB_TITLE == "JUNIOR ARCHITECT"))] <- "17-1011"
